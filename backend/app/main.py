@@ -29,8 +29,8 @@ async def read_item(query: str):
     cosine_time = corpus.cosine(query=lemmatizedQuery)
 
     jaccard, cosine = retrieve_relevant_docs(
-        df, corpus.sorted_indices_jacc, corpus.jaccard_similarities,
-        corpus.sorted_indices_cos, corpus.cosine_distances)
+        df, corpus.best_titles_jaccard, corpus.jaccard_similarities,
+        corpus.best_titles_cosine, corpus.cosine_distances)
 
     jaccard_recall, jaccard_precision, jaccard_f1_score = get_metrics(
         query, corpus.best_titles_jaccard)

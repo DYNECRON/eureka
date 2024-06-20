@@ -19,19 +19,18 @@ class Corpus:
 
     def create_bag_of_words(self):
         bow_matrix = self.count_vectorizer.fit_transform(
-            self.df['stemmed_text'])
+            self.df['processed_text'])
         return bow_matrix
 
     def create_tf_idf(self):
         tfidf_matrix = self.tfidf_vectorizer.fit_transform(
-            self.df['stemmed_text'])
+            self.df['processed_text'])
         return tfidf_matrix
 
     def jaccard(self, query):
         print("procesando jaccard.....")
         start = time.time()
         query_vector = self.count_vectorizer.transform([query])
-        jaccard_similarities = []
         self.jaccard_similarities = []
         for idx in range(self.bag_of_words_matrix.shape[0]):
             a = query_vector.toarray().squeeze()
@@ -39,14 +38,13 @@ class Corpus:
             intersection = np.sum(np.logical_and(a, b))
             union = np.sum(np.logical_or(a, b))
             similarity = intersection/union if union != 0 else 0.0
-            jaccard_similarities.append(similarity)
+            self.jaccard_similarities.append(similarity)
 
-        sorted_indices = np.argsort(jaccard_similarities)[::-1]
+        sorted_indices = np.argsort(self.jaccard_similarities)[::-1]
         self.best_titles_jaccard = []
         self.sorted_indices_jacc = sorted_indices
-        self.jaccard_similarities = jaccard_similarities
-        for idx in sorted_indices:
-            if (jaccard_similarities[idx] > 0.0):
+        for idx in (sorted_indices):
+            if (self.jaccard_similarities[idx] > 0.0):
                 filename = self.df['filename'].iloc[idx]
                 self.best_titles_jaccard.append(filename)
             else:
@@ -60,8 +58,7 @@ class Corpus:
         print("procesando cosine.....")
         start = time.time()
         query_tfidf_vector = self.tfidf_vectorizer.transform([query])
-        print(query_tfidf_vector)
-        cosine_distances = []
+        self.cosine_distances = []
         for idx in range(self.tfidf_matrix.shape[0]):
             a = self.tfidf_matrix[idx].toarray().squeeze()
             b = query_tfidf_vector.toarray().squeeze()
@@ -70,14 +67,13 @@ class Corpus:
                     a, b)/(np.linalg.norm(a)*np.linalg.norm(b))
             else:
                 cos_distance = 0.0
-            cosine_distances.append(cos_distance)
+            self.cosine_distances.append(cos_distance)
 
-        sorted_indices = np.argsort(cosine_distances)[::-1]
+        sorted_indices = np.argsort(self.cosine_distances)[::-1]
         self.best_titles_cosine = []
         self.sorted_indices_cos = sorted_indices
-        self.cosine_distances = cosine_distances
-        for idx in sorted_indices:
-            if (cosine_distances[idx] > 0.0):
+        for idx in (sorted_indices):
+            if (self.cosine_distances[idx] > 0.0):
                 filename = self.df['filename'].iloc[idx]
                 self.best_titles_cosine.append(filename)
             else:
